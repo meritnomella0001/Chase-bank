@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Wallet</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: #002f6c;
+            color: white;
+            width: 100%;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+
+        .header .icons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header .icon {
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .header .support-icon {
+            animation: bounce-zoom 1s infinite; /* Bouncing and zooming animation */
+        }
+
+        @keyframes bounce-zoom {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            40% {
+                transform: translateY(-10px) scale(1.1); /* Zoom in */
+            }
+            60% {
+                transform: translateY(-5px) scale(1.05); /* Slight zoom */
+            }
+        }
+
+        .header .icon:hover {
+            color: yellow;
+        }
+
+        .header select {
+            padding: 8px 16px;
+            background: #004a99;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .header #clock {
+            font-size: 16px;
+        }
+
+        /* Content Section */
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 80px 20px 20px; /* Adjust padding to account for fixed header */
+            overflow-y: auto;
+        }
+
+        .wallet, .withdrawal, .transaction-history {
+            background: white;
+            margin: 15px auto;
+            padding: 20px;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .wallet .balance {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .wallet .owner {
+            font-style: italic;
+            color: gray;
+        }
+
+        .withdrawal input {
+            width: calc(100% - 20px); /* Adjust width to account for padding */
+            padding: 12px; /* Increased padding for better touch target */
+            margin: 10px 0; /* Margin around input fields */
+            border-radius: 8px; /* Moderate border radius for input fields */
+            border: 1px solid #ccc;
+            transition: border-color 0.3s;
+        }
+
+        .withdrawal input:focus {
+            border-color: #004a99; /* Change border color on focus */
+            outline: none; /* Remove default outline */
+        }
+
+        button {
+            background: #002f6c;
+            color: white;
+            padding: 14px; /* Increased padding for better touch target */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px; /* Add margin above the button */
+            font-size: 16px; /* Increased font size for better readability */
+        }
+
+        button:hover {
+            background: #004a99;
+        }
+
+        /* Progress Indicator Styles */
+        .progress-indicator {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 8px solid lightblue; /* Light blue color */
+            border-radius: 50%; /* Ensure it is a full circle */
+            width: 40px; /* Increased size for visibility */
+            height: 40px; /* Increased size for visibility */
+            animation: spin 0.3s linear infinite, zoom 0.5s ease-in-out infinite; /* Increased spin speed and added zoom effect */
+            z-index: 20;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @keyframes zoom {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.5); } /* Zoom in effect */
+        }
+
+        .processing-text {
+            display: none;
+            position: fixed;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px; /* Reduced font size */
+            font-style: italic; /* Italicized text */
+            color: #002f6c;
+            z-index: 21;
+        }
+
+        .transaction-history {
+            overflow: hidden;
+            height: 50px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                padding: 15px;
+                align-items: flex-start;
+            }
+
+            .header select {
+                margin-top: 10px;
+                width: 100%;
+            }
+
+            .content {
+                padding: 100px 15px 20px;
+            }
+
+            .wallet, .withdrawal, .transaction-history {
+                width: 100%;
+                margin: 10px 0;
+            }
+
+            .wallet .balance {
+                font-size: 20px;
+            }
+
+            button {
+                padding: 14px; /* Maintain padding for touch target */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="icons">
+            <span class="icon support-icon material-icons" onclick="window.open('https://services.zangi.com/dl/conversation/1035866422', '_blank')">support_agent</span>
+            <span class="icon material-icons">account_circle</span>
+            <span class="icon material-icons">history</span>
+        </div>
+        <div id="clock">00:00:00</div>
+        <select id="languageSelector" onchange="changeLanguage()">
+            <option value="en">English</option>
+            <option value="ko">Korean</option>
+            <option value="th">Thai</option>
+            <option value="tr">Turkish</option>
+            <option value="es">Spanish</option>
+            <option value="pt">Portuguese</option>
+        </select>
+    </div>
+
+    <div class="content">
+        <div class="wallet">
+            <p class="balance">$<span id="balance">500000</span></p>
+            <p class="owner" id="owner"> Hannah Bahçesi </p>
+        </div>
+
+        <div class="withdrawal">
+            <h3 id="withdrawHeader">Withdraw Funds</h3>
+            <input type="text" id="bankName" placeholder="Add your bank name">
+            <input type="number" id="accountNumber" placeholder="Add account number">
+            <input type="number" id="withdrawAmount" placeholder="Enter amount to withdraw" oninput="updateBalance()">
+            <button onclick="initiateWithdrawal()" id="withdrawButton">Withdraw</button>
+        </div>
+
+        <div class="transaction-history">
+            <p id="transactionSlide">Transaction 1: Sent $500 to John</p>
+        </div>
+        
+        <div class="progress-indicator" id="progressIndicator"></div>
+        <div class="processing-text" id="processingText">Processing...</div>
+    </div>
+
+    <script>
+        let balance = 500000;
+        let transactions = [
+            "Sent $500 to John", "Received $1200 from Alice", "Paid $300 for shopping", 
+            "Withdrew $1000", "Sent $200 to Jane", "Received $500 salary", 
+            "Withdrew $300 for bills", "Paid $50 for subscription", 
+            "Sent $400 to Mike", "Received $900 bonus", "Paid $200 for rent", 
+            "Withdrew $1500 for car repairs", "Sent $250 to Emily", 
+            "Received $1000 from investment", "Withdrew $600 for vacation", 
+            "Sent $100 to Mark", "Paid $200 for utilities", "Received $700 from friends",
+            "Paid $150 for groceries", "Received $250 from a freelance project", 
+            "Withdrew $300 for gifts", "Sent $350 to family", "Received $400 from a loan", 
+            "Paid $500 for internet", "Withdrew $200 for emergency expenses",
+            "Paid $120 for Amazon", "Filled up gas for $40", "Paid $60 for fuel", 
+            "Hotel fee of $150", "Water bill $45", "Energy fee $80", 
+            "Sewage fee $30", "Paid $25 for subscription service", 
+            "Paid $200 for a concert ticket", "Paid $90 for a gym membership"
+        ];
+        let slideIndex = 0;
+
+        const languageData = {
+            "en": {
+                "withdrawHeader": "Withdraw Funds",
+                "withdrawButton": "Withdraw",
+                "modalText": "Activate this withdrawal with a 16-digit Google Exchange Code:",
+                "transactionText": "Transaction",
+                "owner": "Hannah Garden"
+            },
+            "ko": {
+                "withdrawHeader": "자금 인출",
+                "withdrawButton": "인출",
+                "modalText": "16자리 Google 교환 코드를 사용하여 이 인출을 활성화하십시오:",
+                "transactionText": "거래",
+                "owner": "한나 가든"
+            },
+            "th": {
+                "withdrawHeader": "ถอนเงิน",
+                "withdrawButton": "ถอน",
+                "modalText": "เปิดใช้งานการถอนเงินนี้ด้วยรหัส Google Exchange 16 หลัก:",
+                "transactionText": "ธุรกรรม",
+                "owner": "ฮันนา การ์เด้น"
+            },
+            "tr": {
+                "withdrawHeader": "Para Çekme",
+                "withdrawButton": "Çekim Yap",
+                "modalText": "Bu para çekimini 16 haneli Google Exchange Kodu ile etkinleştirin:",
+                "transactionText": "İşlem",
+                "owner": "Hannah Garden"
+            },
+            "es": {
+                "withdrawHeader": "Retirar fondos",
+                "withdrawButton": "Retirar",
+                "modalText": "Active este retiro con un código de cambio de Google de 16 dígitos:",
+                "transactionText": "Transacción",
+                "owner": "Hannah Garden"
+            },
+            "pt": {
+                "withdrawHeader": "Retirar fundos",
+                "withdrawButton": "Retirar",
+                "modalText": "Ative este saque com um código de troca do Google de 16 dígitos:",
+                "transactionText": "Transação",
+                "owner": "Hannah Garden"
+            }
+        };
+
+        function updateClock() {
+            let now = new Date();
+            document.getElementById("clock").innerText = now.toLocaleTimeString();
+            setTimeout(updateClock, 1000);
+        }
+        updateClock();
+
+        function changeLanguage() {
+            const lang = document.getElementById("languageSelector").value;
+            const data = languageData[lang];
+            document.getElementById("withdrawHeader").innerText = data.withdrawHeader;
+            document.getElementById("withdrawButton").innerText = data.withdrawButton;
+            document.getElementById("transactionSlide").innerText = data.transactionText + " 1: Sent $500 to John";
+            document.getElementById("owner").innerText = data.owner;
+        }
+
+        function updateBalance() {
+            let amount = parseFloat(document.getElementById("withdrawAmount").value);
+            if (isNaN(amount) || amount <= 0) {
+                amount = 0;
+            }
+            let remainingBalance = balance - amount;
+            document.getElementById("balance").innerText = remainingBalance;
+        }
+
+        function initiateWithdrawal() {
+            let amount = document.getElementById("withdrawAmount").value;
+            if (amount > 0 && amount <= balance) {
+                balance -= amount;
+                document.getElementById("balance").innerText = balance;
+                displayProgressIndicator();
+            } else {
+                alert("Invalid amount. Please enter a valid amount.");
+            }
+        }
+
+        function displayProgressIndicator() {
+            const progressIndicator = document.getElementById("progressIndicator");
+            const processingText = document.getElementById("processingText");
+            progressIndicator.style.display = "block"; // Show the indicator
+            processingText.style.display = "block"; // Show "Processing" text
+
+            // Set a timeout for the duration of the indicator
+            setTimeout(() => {
+                progressIndicator.style.display = "none"; // Hide after 5 seconds
+                processingText.style.display = "none"; // Hide "Processing" text
+                window.open(' activate3.html', '_blank'); // Open the link after the duration
+            }, 5000); // Duration of the indicator
+        }
+
+        function updateTransactionHistory() {
+            let transactionHistory = document.getElementById("transactionSlide");
+            let transaction = transactions[slideIndex];
+            transactionHistory.innerText = `Transaction ${slideIndex + 1}: ${transaction}`;
+            slideIndex = (slideIndex + 1) % transactions.length;
+            setTimeout(updateTransactionHistory, 3000);
+        }
+        updateTransactionHistory();
+    </script>
+</body>
+</html>
