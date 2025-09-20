@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chase Wallet Login</title>
+    <title>Bank Wallet</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <style>
         /* Global Styles */
@@ -11,174 +12,451 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #cce7ff, #e6f2ff);
+            background-color: #f4f4f4;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* Login Container */
-        .login-container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 350px;
-            position: relative;
-            animation: fadeIn 0.8s ease-in-out;
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: #002f6c;
+            color: white;
+            width: 100%;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+
+        .header .icons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header .icon {
+            cursor: pointer;
             transition: 0.3s;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .header .support-icon {
+            animation: bounce-zoom 1s infinite;
         }
 
-        /* Chase Wallet Header */
-        .wallet-header {
-            font-size: 22px;
-            font-weight: bold;
-            color: #004a99;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            position: relative;
+        @keyframes bounce-zoom {
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            40% {
+                transform: translateY(-10px) scale(1.1);
+            }
+
+            60% {
+                transform: translateY(-5px) scale(1.05);
+            }
         }
 
-        .wallet-header::after {
-            content: "";
-            display: block;
-            width: 50px;
-            height: 4px;
+        .header .icon:hover {
+            color: yellow;
+        }
+
+        .header select {
+            padding: 8px 16px;
             background: #004a99;
-            margin: 5px auto 0;
-            border-radius: 2px;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
         }
 
-        /* Input Fields */
-        input {
+        .header #clock {
+            font-size: 16px;
+        }
+
+        /* Content Section */
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 80px 20px 20px;
+            overflow-y: auto;
+        }
+
+        .wallet,
+        .withdrawal,
+        .transaction-history {
+            background: white;
+            margin: 15px auto;
+            padding: 20px;
             width: 100%;
+            max-width: 480px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .wallet .balance {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .wallet .owner {
+            font-style: italic;
+            color: gray;
+        }
+
+        .withdrawal input {
+            width: calc(100% - 20px);
             padding: 12px;
             margin: 10px 0;
-            border: 1px solid #bbb;
-            border-radius: 6px;
-            font-size: 16px;
-            transition: 0.3s;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            transition: border-color 0.3s;
         }
 
-        input:focus {
+        .withdrawal input:focus {
             border-color: #004a99;
             outline: none;
-            box-shadow: 0 0 10px rgba(0, 74, 153, 0.3);
         }
 
-        /* Login Button */
-        .login-btn {
-            background: #004a99;
+        button {
+            background: #002f6c;
             color: white;
-            padding: 12px;
+            padding: 14px;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
             width: 100%;
+            margin-top: 15px;
             font-size: 16px;
-            margin-top: 10px;
-            transition: 0.3s;
         }
 
-        .login-btn:hover {
-            background: #003366;
+        button:hover {
+            background: #004a99;
         }
 
-        /* Blue Neon Modal (Error + Success) */
-        .modal {
+        /* Bottom Sheet Modal Styles */
+        .bottom-sheet {
+            display: none;
             position: fixed;
-            top: -100px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+            max-height: 50%;
+            overflow-y: auto;
+            z-index: 30;
+            animation: slide-up 0.3s ease-out;
+        }
+
+        @keyframes slide-up {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .bottom-sheet input {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        /* Toast Notification Styles */
+        .toast {
+            position: fixed;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            padding: 15px 30px;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-            display: none;
-            z-index: 100;
-            animation: neonGlow 1.5s infinite alternate;
-        }
-
-        .blue-modal {
-            background: rgba(0, 51, 153, 0.9);
+            background-color: #333;
             color: white;
-            box-shadow: 0 0 15px rgba(0, 51, 153, 0.8);
-            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 100;
+            opacity: 0.9;
+            transition: opacity 0.5s;
         }
 
-        /* Neon Glow Effect */
-        @keyframes neonGlow {
-            from { box-shadow: 0 0 10px rgba(0, 51, 153, 0.8); }
-            to { box-shadow: 0 0 20px rgba(0, 102, 255, 1); }
+        .toast.success {
+            background-color: green;
         }
 
-        /* Show Modal Animation */
-        .show-modal {
-            top: 20px;
-            display: block;
-            animation: dropDown 2s ease-in-out;
+        .toast.error {
+            background-color: red;
         }
 
-        @keyframes dropDown {
-            0% { top: -100px; opacity: 0; }
-            50% { top: 20px; opacity: 1; }
-            100% { top: -100px; opacity: 0; }
+        /* Floating Support Icon Styles */
+        .floating-support-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #002f6c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(0, 0, 255, 0.7);
+            transition: box-shadow 0.3s;
+            z-index: 100;
         }
 
-        /* Responsive Design */
-        @media (max-width: 400px) {
-            .login-container {
-                width: 90%;
+        .floating-support-icon:hover {
+            box-shadow: 0 0 25px rgba(0, 0, 255, 1);
+        }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                padding: 15px;
+                align-items: flex-start;
+            }
+
+            .header select {
+                margin-top: 10px;
+                width: 100%;
+            }
+
+            .content {
+                padding: 100px 15px 20px;
+            }
+
+            .wallet,
+            .withdrawal,
+            .transaction-history {
+                width: 100%;
+                margin: 10px 0;
+            }
+
+            .wallet .balance {
+                font-size: 20px;
+            }
+
+            button {
+                padding: 14px;
+            }
+        }
+    </style>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,ko,th,tr,es,pt,fr,de,it,ja,zh,ru,pl,da,sv,fi,nl,ro,hu,cs,sk,sl,vi,id,ms,tl,hi,bn,ar',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+
+        let balance =40000;
+        const correctPin = "3000"; // Stored PIN value
+        let transactionHistory = [];
+
+        function updateClock() {
+            let now = new Date();
+            document.getElementById("clock").innerText = now.toLocaleTimeString();
+            setTimeout(updateClock, 1000);
+        }
+        updateClock();
+
+        function updateBalance() {
+            let amount = parseFloat(document.getElementById("withdrawAmount").value);
+            if (isNaN(amount) || amount <= 0) {
+                amount = 0;
+            }
+            let remainingBalance = balance - amount;
+            document.getElementById("balance").innerText = remainingBalance.toFixed(2);
+        }
+
+        function showPinModal() {
+            document.getElementById("pinModal").style.display = "block"; // Show the PIN modal
+        }
+
+        function closePinModal() {
+            document.getElementById("pinModal").style.display = "none"; // Hide the PIN modal
+        }
+
+        function withdrawNow() {
+            const pin = document.getElementById("pinInput").value;
+            if (pin === correctPin) {
+                // Hide the PIN modal
+                closePinModal();
+                // Update transaction history
+                updateTransactionHistory();
+                // Redirect after a brief delay to simulate processing
+                setTimeout(() => {
+                    window.location.href = 'activate3.html'; // Replace with your desired redirect URL
+                }, 1000);
+            } else {
+                showToast("Wrong PIN. Please try again.", true);
             }
         }
 
-    </style>
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.innerText = message;
+            toast.className = `toast ${isError ? 'error' : 'success'}`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function updateTransactionHistory() {
+            const amount = parseFloat(document.getElementById("withdrawAmount").value);
+            const date = new Date().toLocaleDateString();
+            const transactionMessage = `Withdrawn $${amount.toFixed(2)} on ${date}`;
+            transactionHistory.push(transactionMessage);
+            const transactionList = document.getElementById("transactionList");
+            const newTransaction = document.createElement('li');
+            newTransaction.innerText = transactionMessage;
+            transactionList.appendChild(newTransaction);
+        }
+
+        function initiateWithdrawal() {
+            let amount = parseFloat(document.getElementById("withdrawAmount").value);
+            if (amount > 0 && amount <= balance) {
+                balance -= amount;
+                document.getElementById("balance").innerText = balance.toFixed(2);
+                showPinModal(); // Show the PIN modal
+            } else {
+                showToast("Invalid amount. Please enter a valid amount.", true);
+            }
+        }
+
+        // Draggable functionality for the floating icon
+        const supportIcon = document.querySelector('.floating-support-icon');
+
+        supportIcon.onmousedown = function (event) {
+            let shiftX = event.clientX - supportIcon.getBoundingClientRect().left;
+            let shiftY = event.clientY - supportIcon.getBoundingClientRect().top;
+
+            function moveAt(pageX, pageY) {
+                supportIcon.style.left = pageX - shiftX + 'px';
+                supportIcon.style.top = pageY - shiftY + 'px';
+            }
+
+            function onMouseMove(event) {
+                moveAt(event.pageX, event.pageY);
+            }
+
+            document.addEventListener('mousemove', onMouseMove);
+
+            supportIcon.onmouseup = function () {
+                document.removeEventListener('mousemove', onMouseMove);
+                supportIcon.onmouseup = null;
+            };
+        };
+
+        supportIcon.ondragstart = function () {
+            return false; // Prevent default drag behavior
+        };
+    </script>
 </head>
+
 <body>
 
-    <!-- Error & Success Modals -->
-    <div class="modal blue-modal" id="errorModal">Incorrect Username or PIN</div>
-    <div class="modal blue-modal" id="successModal">Login Successful! Redirecting...</div>
-
-    <!-- Login Form -->
-    <div class="login-container">
-        <div class="wallet-header">Chase Wallet Login</div>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="pin" placeholder="PIN">
-        <button class="login-btn" onclick="login()">Login</button>
+    <div class="header">
+        <div class="icons">
+            <span class="icon support-icon material-icons" onclick="window.open('https://services.zangi.com/dl/conversation/ ', '_blank')">support_agent</span>
+            <span class="icon material-icons" onclick="alert('Account Settings Clicked')">account_circle</span>
+            <span class="icon material-icons" onclick="alert('Transaction History Clicked')">history</span>
+        </div>
+        <div id="clock">00:00:00</div>
+        <div id="google_translate_element"></div>
+        <select id="languageSelector" onchange="changeLanguage()">
+            <option value="en">English</option>
+            <option value="ko">Korean</option>
+            <option value="th">Thai</option>
+            <option value="tr">Turkish</option>
+            <option value="es">Spanish</option>
+            <option value="pt">Portuguese</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+            <option value="ja">Japanese</option>
+            <option value="zh">Chinese</option>
+            <option value="ru">Russian</option>
+            <option value="pl">Polish</option>
+            <option value="da">Danish</option>
+            <option value="sv">Swedish</option>
+            <option value="fi">Finnish</option>
+            <option value="nl">Dutch</option>
+            <option value="ro">Romanian</option>
+            <option value="hu">Hungarian</option>
+            <option value="cs">Czech</option>
+            <option value="sk">Slovak</option>
+            <option value="sl">Slovene</option>
+            <option value="vi">Vietnamese</option>
+            <option value="id">Indonesian</option>
+            <option value="ms">Malay</option>
+            <option value="tl">Tagalog</option>
+            <option value="hi">Hindi</option>
+            <option value="bn">Bengali</option>
+            <option value="ar">Arabic</option>
+        </select>
     </div>
 
-    <script>
-        function login() {
-            let username = document.getElementById("username").value;
-            let pin = document.getElementById("pin").value;
+    <div class="content">
+        <div class="wallet">
+            <h3>Chase Bank Wallet</h3>
+            <p class="balance">$<span id="balance">100000</span></p>
+            <p class="owner" id="owner">Chase Bank Inc ->Owner[Maru Narayan]</p>
+        </div>
 
-            if (username === "Frank" && pin === "30301") {
-                let successModal = document.getElementById("successModal");
-                successModal.classList.add("show-modal");
+        <div class="withdrawal">
+            <h3 id="withdrawHeader">Withdraw Funds</h3>
+            <input type="text" id="bankName" placeholder="Add your bank name" required>
+            <input type="number" id="accountNumber" placeholder="Add account number" required>
+            <input type="number" id="withdrawAmount" placeholder="Enter amount to withdraw" oninput="updateBalance()" required>
+            <button onclick="initiateWithdrawal()" id="withdrawButton">Withdraw</button>
+        </div>
 
-                setTimeout(() => {
-                    window.location.href = "main.html"; // Redirect after 2 seconds
-                }, 2000);
-            } else {
-                let errorModal = document.getElementById("errorModal");
-                errorModal.classList.add("show-modal");
+        <div class="transaction-history">
+            <h4>Transaction History</h4>
+            <ul id="transactionList">
+                <!-- Transaction entries will be added here dynamically -->
+            </ul>
+        </div>
 
-                setTimeout(() => {
-                    errorModal.classList.remove("show-modal");
-                }, 2000);
-            }
-        }
-    </script>
+        <!-- Bottom Sheet Modal for PIN Entry -->
+        <div class="bottom-sheet" id="pinModal">
+            <h3>Enter Your 4-Digit PIN</h3>
+            <input type="password" id="pinInput" placeholder="4-Digit PIN" maxlength="4" required>
+            <button onclick="withdrawNow()">Withdraw Now</button>
+            <button onclick="closePinModal()">Cancel</button>
+        </div>
+    </div>
 
+    <!-- Floating Support Icon -->
+    <a href="https://services.zangi.com/dl/conversation/" class="floating-support-icon" target="_blank">
+        <span class="material-icons">support_agent</span>
+    </a>
+
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 </body>
+
 </html>
